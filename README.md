@@ -1,100 +1,100 @@
 # NiceDentist Manager API
 
-Sistema de gerenciamento para clínica odontológica, responsável pelo cadastro e gerenciamento de clientes, dentistas e agendamentos.
+Management system for dental clinic, responsible for customer, dentist, and appointment management.
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
-Este projeto segue os princípios da **Clean Architecture** com as seguintes camadas:
+This project follows **Clean Architecture** principles with the following layers:
 
-- **Domain**: Entidades de negócio (Customer, Dentist, Appointment)
-- **Application**: Regras de negócio e serviços (CustomerService, DentistService, AppointmentService)
-- **Infrastructure**: Implementações de acesso a dados e serviços externos
-- **API**: Controllers e configuração da Web API
+- **Domain**: Business entities (Customer, Dentist, Appointment)
+- **Application**: Business rules and services (CustomerService, DentistService, AppointmentService)
+- **Infrastructure**: Data access and external services implementations
+- **API**: Controllers and Web API configuration
 
-## 🔄 Integração Event-Driven
+## 🔄 Event-Driven Integration
 
-O Manager API se integra com o Auth API através de eventos RabbitMQ:
+The Manager API integrates with the Auth API through RabbitMQ events:
 
-### Fluxo de Eventos:
-1. **Manager API** cria Customer/Dentist → Publica evento para **Auth API**
-2. **Auth API** cria conta de usuário → Publica evento de volta para **Manager API**
-3. **Manager API** recebe evento e linka UserId com Customer/Dentist
+### Event Flow:
+1. **Manager API** creates Customer/Dentist → Publishes event to **Auth API**
+2. **Auth API** creates user account → Publishes event back to **Manager API**
+3. **Manager API** receives event and links UserId with Customer/Dentist
 
-### Eventos:
-- `CustomerCreated` → Enviado para Auth API
-- `DentistCreated` → Enviado para Auth API  
-- `UserCreated` → Recebido do Auth API
+### Events:
+- `CustomerCreated` → Sent to Auth API
+- `DentistCreated` → Sent to Auth API  
+- `UserCreated` → Received from Auth API
 
-## 🛠️ Tecnologias
+## 🛠️ Technologies
 
 - **.NET 8**
 - **ASP.NET Core Web API**
 - **SQL Server** (via ADO.NET)
 - **RabbitMQ** (Event-driven communication)
-- **xUnit** (Testes unitários e integração)
-- **FluentAssertions** (Assertions para testes)
+- **xUnit** (Unit and integration tests)
+- **FluentAssertions** (Test assertions)
 - **Moq** (Mocking framework)
 
-## 📋 Funcionalidades
+## 📋 Features
 
-### Customers (Clientes)
-- ✅ Cadastro de clientes
-- ✅ Listagem de clientes
-- ✅ Busca por ID/email
-- ✅ Atualização de dados
-- ✅ Desativação de clientes
+### Customers
+- ✅ Customer registration
+- ✅ Customer listing
+- ✅ Search by ID/email
+- ✅ Data updates
+- ✅ Customer deactivation
 
-### Dentists (Dentistas)
-- ✅ Cadastro de dentistas
-- ✅ Listagem de dentistas
-- ✅ Busca por ID/email/CRO
-- ✅ Atualização de dados
-- ✅ Desativação de dentistas
+### Dentists
+- ✅ Dentist registration
+- ✅ Dentist listing
+- ✅ Search by ID/email/license
+- ✅ Data updates
+- ✅ Dentist deactivation
 
-### Appointments (Agendamentos)
-- ✅ Criação de agendamentos
-- ✅ Listagem por cliente/dentista/data
-- ✅ Atualização de status
-- ✅ Cancelamento de agendamentos
+### Appointments
+- ✅ Appointment creation
+- ✅ List by customer/dentist/date
+- ✅ Status updates
+- ✅ Appointment cancellation
 
-### User Management (Gerenciamento de Usuários)
-- ✅ Integração event-driven com Auth API
-- ✅ Linking automático de UserId com Customer/Dentist
-- ✅ Notificações de criação de conta
+### User Management
+- ✅ Event-driven integration with Auth API
+- ✅ Automatic UserId linking with Customer/Dentist
+- ✅ Account creation notifications
 
-## 🗄️ Banco de Dados
+## 🗄️ Database
 
-### Tabelas:
-- **Customers**: Dados dos clientes
-- **Dentists**: Dados dos dentistas  
-- **Appointments**: Agendamentos entre clientes e dentistas
+### Tables:
+- **Customers**: Customer data
+- **Dentists**: Dentist data  
+- **Appointments**: Appointments between customers and dentists
 
-### Campos de Integração:
-- `Customers.UserId` → Referência para `Users.Id` no Auth DB
-- `Dentists.UserId` → Referência para `Users.Id` no Auth DB
+### Integration Fields:
+- `Customers.UserId` → Reference to `Users.Id` in Auth DB
+- `Dentists.UserId` → Reference to `Users.Id` in Auth DB
 
-## 🚀 Como Executar
+## 🚀 How to Run
 
-### Pré-requisitos:
+### Prerequisites:
 - .NET 8 SDK
-- SQL Server (via Docker ou local)
-- RabbitMQ (via Docker ou local)
+- SQL Server (via Docker or local)
+- RabbitMQ (via Docker or local)
 
-### 1. Infraestrutura:
+### 1. Infrastructure:
 ```bash
-# Subir SQL Server + RabbitMQ
+# Start SQL Server + RabbitMQ
 cd ../NiceDentist-Database
 docker-compose up -d
 ```
 
-### 2. Configuração:
+### 2. Configuration:
 ```bash
-# Configurar connection string no appsettings.json
+# Configure connection string in appsettings.json
 "ConnectionStrings": {
   "ManagerDb": "Server=localhost;Database=NiceDentistManagerDb;User Id=sa;Password=Your_strong_password123!;TrustServerCertificate=True;"
 }
 
-# Configurar RabbitMQ no appsettings.json
+# Configure RabbitMQ in appsettings.json
 "RabbitMQ": {
   "HostName": "localhost",
   "UserName": "nicedentist",
@@ -102,52 +102,52 @@ docker-compose up -d
 }
 ```
 
-### 3. Executar:
+### 3. Run:
 ```bash
 dotnet run --project src/NiceDentist.Manager.Api
 ```
 
 ### 4. Swagger:
-Acesse: `https://localhost:5001/swagger`
+Access: `https://localhost:5001/swagger`
 
-## 🧪 Testes
+## 🧪 Tests
 
-### Executar todos os testes:
+### Run all tests:
 ```bash
 dotnet test
 ```
 
-### Executar com cobertura:
+### Run with coverage:
 ```bash
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 NiceDentist-Manager/
 ├── src/
-│   ├── NiceDentist.Manager.Domain/          # Entidades
-│   ├── NiceDentist.Manager.Application/      # Serviços e contratos
-│   ├── NiceDentist.Manager.Infrastructure/   # Repositórios e RabbitMQ
-│   └── NiceDentist.Manager.Api/             # Controllers e configuração
+│   ├── NiceDentist.Manager.Domain/          # Entities
+│   ├── NiceDentist.Manager.Application/      # Services and contracts
+│   ├── NiceDentist.Manager.Infrastructure/   # Repositories and RabbitMQ
+│   └── NiceDentist.Manager.Api/             # Controllers and configuration
 ├── tests/
-│   ├── NiceDentist.Manager.Tests/           # Testes unitários
-│   └── NiceDentist.Manager.IntegrationTests/ # Testes de integração
+│   ├── NiceDentist.Manager.Tests/           # Unit tests
+│   └── NiceDentist.Manager.IntegrationTests/ # Integration tests
 ├── NiceDentist.Manager.sln
 ├── .gitignore
 └── README.md
 ```
 
-## 🔗 Repositórios Relacionados
+## 🔗 Related Repositories
 
-- **Auth API**: [NiceDentist-AuthAPI](../NiceDentist-AuthAPI) - Sistema de autenticação e autorização
-- **Database**: [NiceDentist-Database](../NiceDentist-Database) - Scripts SQL e Docker Compose
+- **Auth API**: [NiceDentist-AuthAPI](../NiceDentist-AuthAPI) - Authentication and authorization system
+- **Database**: [NiceDentist-Database](../NiceDentist-Database) - SQL scripts and Docker Compose
 
-## 📝 Licença
+## 📝 License
 
-Este projeto é parte de um sistema de demonstração para clínica odontológica.
+This project is part of a dental clinic demonstration system.
 
 ---
 
-**NiceDentist Manager API** - Sistema de Gerenciamento Odontológico 🦷
+**NiceDentist Manager API** - Dental Management System 🦷
