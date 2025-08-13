@@ -1,8 +1,20 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Register application services
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+// Register repositories (temporary in-memory implementations)
+builder.Services.AddScoped<ICustomerRepository, InMemoryCustomerRepository>();
+
+// Register other services (temporary mock implementations)
+builder.Services.AddScoped<IAuthApiService, MockAuthApiService>();
+builder.Services.AddScoped<IEmailService, MockEmailService>();
 
 var app = builder.Build();
 
@@ -14,4 +26,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.Run();
+// Map controllers
+app.MapControllers();
+
+await app.RunAsync();
+
+/// <summary>
+/// Program class for integration tests
+/// </summary>
+public partial class Program 
+{ 
+    /// <summary>
+    /// Protected constructor for testing
+    /// </summary>
+    protected Program() { }
+}

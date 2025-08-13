@@ -1,5 +1,3 @@
-using NiceDentist.Manager.Domain;
-
 namespace NiceDentist.Manager.Application.Contracts;
 
 /// <summary>
@@ -29,12 +27,13 @@ public interface ICustomerRepository
     Task<Customer?> GetByEmailAsync(string email);
 
     /// <summary>
-    /// Gets all customers with pagination
+    /// Gets all customers with pagination and optional search
     /// </summary>
     /// <param name="page">Page number (1-based)</param>
     /// <param name="pageSize">Number of items per page</param>
+    /// <param name="search">Optional search term</param>
     /// <returns>List of customers</returns>
-    Task<IEnumerable<Customer>> GetAllAsync(int page = 1, int pageSize = 10);
+    Task<IEnumerable<Customer>> GetAllAsync(int page = 1, int pageSize = 10, string? search = null);
 
     /// <summary>
     /// Updates a customer
