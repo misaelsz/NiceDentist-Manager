@@ -1,3 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
+using NiceDentist.Manager.Api.DTOs.Requests;
+using NiceDentist.Manager.Api.DTOs.Responses;
+using NiceDentist.Manager.Application.Contracts;
+using NiceDentist.Manager.Application.DTOs;
+
 namespace NiceDentist.Manager.Api.Controllers;
 
 /// <summary>

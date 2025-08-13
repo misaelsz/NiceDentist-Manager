@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace NiceDentist.Manager.Api.DTOs.Requests;
 
 /// <summary>

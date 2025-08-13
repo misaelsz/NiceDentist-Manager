@@ -1,3 +1,5 @@
+using NiceDentist.Manager.Domain;
+
 namespace NiceDentist.Manager.Application.Contracts;
 
 /// <summary>

@@ -1,3 +1,7 @@
+using NiceDentist.Manager.Application.Contracts;
+using NiceDentist.Manager.Application.DTOs;
+using NiceDentist.Manager.Domain;
+
 namespace NiceDentist.Manager.Application.Services;
 
 /// <summary>

@@ -1,3 +1,5 @@
+using NiceDentist.Manager.Application.DTOs;
+
 namespace NiceDentist.Manager.Application.Contracts;
 
 /// <summary>

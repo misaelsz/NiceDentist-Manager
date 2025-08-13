@@ -1,3 +1,8 @@
+using NiceDentist.Manager.Application.Services;
+using NiceDentist.Manager.Application.Contracts;
+using NiceDentist.Manager.Infrastructure.Repositories;
+using NiceDentist.Manager.Infrastructure.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
