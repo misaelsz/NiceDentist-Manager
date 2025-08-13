@@ -67,7 +67,8 @@ public class DentistService
             // Create user in Auth API
             var createUserRequest = new CreateUserRequest
             {
-                Username = username,
+                FirstName = dentist.Name.Split(' ').FirstOrDefault() ?? dentist.Name,
+                LastName = dentist.Name.Split(' ').Skip(1).FirstOrDefault() ?? "",
                 Email = dentist.Email,
                 Password = password,
                 Role = "Dentist"

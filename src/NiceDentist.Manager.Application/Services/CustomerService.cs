@@ -66,7 +66,8 @@ public class CustomerService
             // Create user in Auth API
             var createUserRequest = new CreateUserRequest
             {
-                Username = username,
+                FirstName = customer.Name.Split(' ').FirstOrDefault() ?? customer.Name,
+                LastName = customer.Name.Split(' ').Skip(1).FirstOrDefault() ?? "",
                 Email = customer.Email,
                 Password = password,
                 Role = "Customer"

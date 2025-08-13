@@ -1,6 +1,8 @@
 @NiceDentist.Manager.Api_HostAddress = http://localhost:5210
 
-GET {{NiceDentist.Manager.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+# NiceDentist Manager API endpoints will be added here
+# Example:
+# GET {{NiceDentist.Manager.Api_HostAddress}}/api/customers
+# Accept: application/json
 
 ###
