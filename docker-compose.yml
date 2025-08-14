@@ -1,0 +1,19 @@
+services:
+  nicedentist-manager-api:
+    build:
+      context: .
+      dockerfile: src/NiceDentist.Manager.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8081
+      - ConnectionStrings__DefaultConnection=Server=nicedentist-database-sqlserver-1,1433;Database=NiceDentistManagerDb;User Id=sa;Password=Your_strong_password123!;TrustServerCertificate=true;
+      - DatabaseProvider=SqlServer
+    ports:
+      - "5001:8081"
+    restart: unless-stopped
+    networks:
+      - nicedentist-database_default
+
+networks:
+  nicedentist-database_default:
+    external: true
