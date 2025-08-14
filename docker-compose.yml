@@ -8,9 +8,12 @@ services:
       - ASPNETCORE_URLS=http://+:8081
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=NiceDentistManagerDb;User Id=sa;Password=Your_strong_password123!;TrustServerCertificate=true;
       - DatabaseProvider=SqlServer
-      - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Username=nicedentist
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=nicedentist
       - RabbitMQ__Password=Your_rabbit_password123!
+      - RabbitMQ__VirtualHost=/
+      - RabbitMQ__ExchangeName=nicedentist.events
       - AuthService__BaseUrl=http://authapi:8080
     ports:
       - "5001:8081"

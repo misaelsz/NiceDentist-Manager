@@ -1,5 +1,6 @@
 using NiceDentist.Manager.Application.Contracts;
 using NiceDentist.Manager.Application.DTOs;
+using NiceDentist.Manager.Application.Events;
 using NiceDentist.Manager.Domain;
 
 namespace NiceDentist.Manager.Application.Services;
@@ -12,6 +13,7 @@ public class CustomerService : ICustomerService
     private readonly ICustomerRepository _customerRepository;
     private readonly IAuthApiService _authApiService;
     private readonly IEmailService _emailService;
+    private readonly IEventPublisher _eventPublisher;
 
     /// <summary>
     /// Initializes a new instance of the CustomerService
@@ -19,14 +21,17 @@ public class CustomerService : ICustomerService
     /// <param name="customerRepository">Customer repository</param>
     /// <param name="authApiService">Auth API service</param>
     /// <param name="emailService">Email service</param>
+    /// <param name="eventPublisher">Event publisher for RabbitMQ</param>
     public CustomerService(
         ICustomerRepository customerRepository,
         IAuthApiService authApiService,
-        IEmailService emailService)
+        IEmailService emailService,
+        IEventPublisher eventPublisher)
     {
         _customerRepository = customerRepository;
         _authApiService = authApiService;
         _emailService = emailService;
+        _eventPublisher = eventPublisher;
     }
 
     /// <summary>
@@ -254,6 +259,22 @@ public class CustomerService : ICustomerService
         customer.IsActive = true;
 
         var createdCustomer = await _customerRepository.CreateAsync(customer);
+        
+        // Publish CustomerCreated event to RabbitMQ for Auth API to handle
+        var customerCreatedEvent = new CustomerCreatedEvent
+        {
+            Data = new CustomerCreatedData
+            {
+                CustomerId = createdCustomer.Id,
+                Name = createdCustomer.Name,
+                Email = createdCustomer.Email,
+                Phone = createdCustomer.Phone
+            }
+        };
+        
+        // Publish the event (Auth API will handle user creation and email)
+        await _eventPublisher.PublishAsync(customerCreatedEvent);
+        
         return MapToDto(createdCustomer);
     }
 
