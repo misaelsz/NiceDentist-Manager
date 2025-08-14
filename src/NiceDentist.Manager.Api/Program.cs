@@ -13,9 +13,23 @@ builder.Services.AddOpenApi();
 
 // Register application services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
-// Register repositories (temporary in-memory implementations)
-builder.Services.AddScoped<ICustomerRepository, InMemoryCustomerRepository>();
+// Register repositories based on environment
+var databaseProvider = builder.Configuration.GetValue<string>("DatabaseProvider");
+
+if (databaseProvider == "InMemory" || builder.Environment.IsDevelopment())
+{
+    // Development: Use in-memory implementations
+    builder.Services.AddScoped<ICustomerRepository, InMemoryCustomerRepository>();
+    builder.Services.AddScoped<IAppointmentRepository, InMemoryAppointmentRepository>();
+}
+else
+{
+    // Production: Use real database implementations
+    builder.Services.AddScoped<ICustomerRepository, CustomerRepository>(); // Real SQL implementation
+    builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>(); // Real SQL implementation
+}
 
 // Register other services (temporary mock implementations)
 builder.Services.AddScoped<IAuthApiService, MockAuthApiService>();
