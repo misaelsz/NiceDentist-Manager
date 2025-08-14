@@ -169,7 +169,8 @@ public class CustomersController : ControllerBase
                 Email = request.Email,
                 Phone = request.Phone,
                 DateOfBirth = request.DateOfBirth,
-                Address = request.Address
+                Address = request.Address,
+                IsActive = request.IsActive
             };
 
             var updatedCustomer = await _customerService.UpdateCustomerAsync(customerDto);

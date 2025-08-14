@@ -312,6 +312,7 @@ public class CustomerService : ICustomerService
         existingCustomer.Phone = customerDto.Phone ?? string.Empty;
         existingCustomer.DateOfBirth = customerDto.DateOfBirth ?? default;
         existingCustomer.Address = customerDto.Address ?? string.Empty;
+        existingCustomer.IsActive = customerDto.IsActive;
         existingCustomer.UpdatedAt = DateTime.UtcNow;
 
         var updatedCustomer = await _customerRepository.UpdateAsync(existingCustomer);

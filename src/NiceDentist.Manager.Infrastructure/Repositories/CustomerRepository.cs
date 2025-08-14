@@ -62,7 +62,7 @@ public class CustomerRepository : ICustomerRepository
         const string sql = @"
             SELECT Id, Name, Email, Phone, DateOfBirth, Address, CreatedAt, UpdatedAt, IsActive
             FROM Customers 
-            WHERE Id = @Id AND IsActive = 1";
+            WHERE Id = @Id";
 
         using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();

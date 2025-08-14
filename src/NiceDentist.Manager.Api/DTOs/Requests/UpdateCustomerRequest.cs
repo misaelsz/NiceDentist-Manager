@@ -40,4 +40,9 @@ public class UpdateCustomerRequest
     /// </summary>
     [StringLength(500, ErrorMessage = "Address cannot exceed 500 characters")]
     public string? Address { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the customer is active
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }
