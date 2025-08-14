@@ -13,8 +13,8 @@ public interface ICustomerService
     /// <param name="page">Page number (1-based)</param>
     /// <param name="pageSize">Number of items per page</param>
     /// <param name="search">Optional search term</param>
-    /// <returns>A list of customers</returns>
-    Task<IEnumerable<CustomerDto>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null);
+    /// <returns>A paged result of customers</returns>
+    Task<PagedResult<CustomerDto>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null);
 
     /// <summary>
     /// Gets a customer by their unique identifier

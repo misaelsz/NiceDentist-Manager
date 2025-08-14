@@ -1,5 +1,7 @@
 using NiceDentist.Manager.Application.Services;
 using NiceDentist.Manager.Application.Contracts;
+using NiceDentist.Manager.Application.EventHandlers;
+using NiceDentist.Manager.Application.Events;
 using NiceDentist.Manager.Infrastructure.Repositories;
 using NiceDentist.Manager.Infrastructure.Services;
 using NiceDentist.Manager.Infrastructure.Messaging;
@@ -39,25 +41,18 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
-// Register repositories based on environment
-var databaseProvider = builder.Configuration.GetValue<string>("DatabaseProvider");
-
-if (databaseProvider == "InMemory")
-{
-    // Development: Use in-memory implementations (Singleton to persist data between requests)
-    builder.Services.AddSingleton<ICustomerRepository, InMemoryCustomerRepository>();
-    builder.Services.AddSingleton<IAppointmentRepository, InMemoryAppointmentRepository>();
-}
-else
-{
-    // Production: Use real database implementations
-    builder.Services.AddScoped<ICustomerRepository, CustomerRepository>(); // Real SQL implementation
-    builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>(); // Real SQL implementation
-}
+// Register repositories - Use SQL implementations by default
+// In-memory repositories are only used in test environments
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IDentistRepository, DentistRepository>();
 
 // Register other services (temporary mock implementations)
 builder.Services.AddScoped<IAuthApiService, MockAuthApiService>();
 builder.Services.AddScoped<IEmailService, MockEmailService>();
+
+// Register event handlers
+builder.Services.AddScoped<IEventHandler<UserCreatedEvent>, UserCreatedEventHandler>();
 
 // Register RabbitMQ services
 builder.Services.AddSingleton<IConnectionFactory>(sp =>
@@ -80,6 +75,21 @@ builder.Services.AddScoped<IEventPublisher>(sp =>
     var exchangeName = config.GetValue<string>("RabbitMQ:ExchangeName") ?? "nicedentist.events";
     return new RabbitMqEventPublisher(connectionFactory, exchangeName);
 });
+
+// Register event consumer as hosted service
+builder.Services.AddSingleton<IEventConsumer>(sp =>
+{
+    var connectionFactory = sp.GetRequiredService<IConnectionFactory>();
+    var serviceProvider = sp.GetRequiredService<IServiceProvider>();
+    var logger = sp.GetRequiredService<ILogger<RabbitMqEventConsumer>>();
+    var config = sp.GetRequiredService<IConfiguration>();
+    var exchangeName = config.GetValue<string>("RabbitMQ:ExchangeName") ?? "nicedentist.events";
+    var queueName = config.GetValue<string>("RabbitMQ:ManagerQueueName") ?? "manager.userCreated";
+    return new RabbitMqEventConsumer(connectionFactory, serviceProvider, logger, exchangeName, queueName);
+});
+
+builder.Services.AddHostedService<RabbitMqEventConsumer>(sp => 
+    (RabbitMqEventConsumer)sp.GetRequiredService<IEventConsumer>());
 
 var app = builder.Build();
 

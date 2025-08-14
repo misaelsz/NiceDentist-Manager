@@ -36,18 +36,25 @@ public class CustomersController : ControllerBase
     /// <param name="page">Page number (default: 1)</param>
     /// <param name="pageSize">Page size (default: 10)</param>
     /// <param name="search">Optional search term</param>
-    /// <returns>A list of customers</returns>
+    /// <returns>A paged list of customers</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<CustomerResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<CustomerResponse>>> GetAllCustomers(
+    [ProducesResponseType(typeof(PagedResponse<CustomerResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<CustomerResponse>>> GetAllCustomers(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? search = null)
     {
         try
         {
-            var customers = await _customerService.GetAllCustomersAsync(page, pageSize, search);
-            var response = customers.Select(MapToResponse);
+            var result = await _customerService.GetAllCustomersAsync(page, pageSize, search);
+            var response = new PagedResponse<CustomerResponse>
+            {
+                Data = result.Items.Select(MapToResponse),
+                Page = result.Page,
+                PageSize = result.PageSize,
+                Total = result.TotalCount,
+                TotalPages = result.TotalPages
+            };
             return Ok(response);
         }
         catch (Exception ex)
@@ -114,6 +121,15 @@ public class CustomersController : ControllerBase
             var response = MapToResponse(createdCustomer);
 
             return CreatedAtAction(nameof(GetCustomerById), new { id = response.Id }, response);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+        {
+            _logger.LogWarning(ex, "Duplicate customer email: {Email}", request.Email);
+            return Conflict(new { 
+                message = ex.Message,
+                field = "email",
+                code = "DUPLICATE_EMAIL"
+            });
         }
         catch (ArgumentException ex)
         {

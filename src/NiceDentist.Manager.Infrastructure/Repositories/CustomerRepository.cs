@@ -118,7 +118,7 @@ public class CustomerRepository : ICustomerRepository
         var sql = @"
             SELECT Id, Name, Email, Phone, DateOfBirth, Address, CreatedAt, UpdatedAt, IsActive
             FROM Customers 
-            WHERE IsActive = 1";
+            WHERE 1=1";
 
         var parameters = new List<SqlParameter>();
 
@@ -218,6 +218,36 @@ public class CustomerRepository : ICustomerRepository
 
         var rowsAffected = await command.ExecuteNonQueryAsync();
         return rowsAffected > 0;
+    }
+
+    /// <summary>
+    /// Gets the total count of customers with optional search
+    /// </summary>
+    /// <param name="search">Optional search term</param>
+    /// <returns>Total count of customers</returns>
+    public async Task<int> GetCountAsync(string? search = null)
+    {
+        var sql = "SELECT COUNT(*) FROM Customers WHERE 1=1";
+        var parameters = new List<SqlParameter>();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            sql += @" AND (
+                Name LIKE @Search OR 
+                Email LIKE @Search OR 
+                Phone LIKE @Search
+            )";
+            parameters.Add(new SqlParameter("@Search", $"%{search}%"));
+        }
+
+        using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddRange(parameters.ToArray());
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result);
     }
 
     private static Customer MapFromReader(SqlDataReader reader)

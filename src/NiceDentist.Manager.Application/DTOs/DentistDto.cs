@@ -1,27 +1,27 @@
-namespace NiceDentist.Manager.Domain;
+namespace NiceDentist.Manager.Application.DTOs;
 
 /// <summary>
-/// Represents a dentist in the NiceDentist system
+/// Data Transfer Object for Dentist
 /// </summary>
-public class Dentist
+public class DentistDto
 {
     /// <summary>
-    /// Gets or sets the unique identifier for the dentist
+    /// Gets or sets the dentist ID
     /// </summary>
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the dentist's full name
+    /// Gets or sets the dentist's name
     /// </summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the dentist's email address
+    /// Gets or sets the dentist's email
     /// </summary>
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the dentist's phone number
+    /// Gets or sets the dentist's phone
     /// </summary>
     public string Phone { get; set; } = string.Empty;
 
@@ -38,12 +38,12 @@ public class Dentist
     /// <summary>
     /// Gets or sets when the dentist was created
     /// </summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets when the dentist was last updated
     /// </summary>
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets whether the dentist is active
@@ -51,12 +51,7 @@ public class Dentist
     public bool IsActive { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the user ID from Auth API (nullable until user is created)
+    /// Gets or sets the user ID from Auth API
     /// </summary>
     public int? UserId { get; set; }
-
-    /// <summary>
-    /// Navigation property for appointments
-    /// </summary>
-    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 }

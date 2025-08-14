@@ -38,6 +38,13 @@ public interface ICustomerRepository
     Task<IEnumerable<Customer>> GetAllAsync(int page = 1, int pageSize = 10, string? search = null);
 
     /// <summary>
+    /// Gets the total count of customers with optional search
+    /// </summary>
+    /// <param name="search">Optional search term</param>
+    /// <returns>Total count of customers</returns>
+    Task<int> GetCountAsync(string? search = null);
+
+    /// <summary>
     /// Updates a customer
     /// </summary>
     /// <param name="customer">The customer to update</param>

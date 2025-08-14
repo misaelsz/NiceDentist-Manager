@@ -123,11 +123,19 @@ public class CustomerService : ICustomerService
     /// <param name="page">Page number</param>
     /// <param name="pageSize">Page size</param>
     /// <param name="search">Optional search term</param>
-    /// <returns>List of customers</returns>
-    public async Task<IEnumerable<CustomerDto>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null)
+    /// <returns>Paged result of customers</returns>
+    public async Task<PagedResult<CustomerDto>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null)
     {
         var customers = await _customerRepository.GetAllAsync(page, pageSize, search);
-        return customers.Select(MapToDto);
+        var totalCount = await _customerRepository.GetCountAsync(search);
+
+        return new PagedResult<CustomerDto>
+        {
+            Items = customers.Select(MapToDto),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
     }
 
     /// <summary>
@@ -251,8 +259,16 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="customerDto">Customer DTO</param>
     /// <returns>Created customer DTO</returns>
+    /// <exception cref="InvalidOperationException">Thrown when email already exists</exception>
     public async Task<CustomerDto> CreateCustomerAsync(CustomerDto customerDto)
     {
+        // Check if email already exists
+        var existingCustomer = await _customerRepository.GetByEmailAsync(customerDto.Email);
+        if (existingCustomer != null)
+        {
+            throw new InvalidOperationException($"A customer with email '{customerDto.Email}' already exists.");
+        }
+
         var customer = MapToEntity(customerDto);
         customer.CreatedAt = DateTime.UtcNow;
         customer.UpdatedAt = DateTime.UtcNow;

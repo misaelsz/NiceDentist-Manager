@@ -51,6 +51,11 @@ public class Customer
     public bool IsActive { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets the user ID from Auth API (nullable until user is created)
+    /// </summary>
+    public int? UserId { get; set; }
+
+    /// <summary>
     /// Navigation property for appointments
     /// </summary>
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();

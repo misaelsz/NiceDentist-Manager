@@ -75,6 +75,27 @@ public class InMemoryCustomerRepository : ICustomerRepository
     }
 
     /// <summary>
+    /// Gets the total count of customers with optional search
+    /// NOTA: In-memory repository - apenas para testes
+    /// </summary>
+    /// <param name="search">Optional search term</param>
+    /// <returns>Total count of customers</returns>
+    public Task<int> GetCountAsync(string? search = null)
+    {
+        var query = _customers.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(c => 
+                c.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                c.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                (!string.IsNullOrEmpty(c.Phone) && c.Phone.Contains(search, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        return Task.FromResult(query.Count());
+    }
+
+    /// <summary>
     /// Updates a customer
     /// </summary>
     /// <param name="customer">The customer to update</param>
