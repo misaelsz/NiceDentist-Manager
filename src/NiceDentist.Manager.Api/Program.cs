@@ -8,8 +8,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Add OpenAPI/Swagger services
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() 
+    { 
+        Title = "NiceDentist Manager API", 
+        Version = "v1",
+        Description = "API for managing customers, dentists, and appointments in the NiceDentist system"
+    });
+});
 
 // Register application services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -41,6 +51,22 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "NiceDentist Manager API v1");
+        c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+    });
+}
+else
+{
+    // Enable Swagger in production for testing
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "NiceDentist Manager API v1");
+        c.RoutePrefix = "swagger"; // Available at /swagger
+    });
 }
 
 app.UseHttpsRedirection();
