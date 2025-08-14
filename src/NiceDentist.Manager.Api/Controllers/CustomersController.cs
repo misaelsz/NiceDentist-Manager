@@ -3,6 +3,7 @@ using NiceDentist.Manager.Api.DTOs.Requests;
 using NiceDentist.Manager.Api.DTOs.Responses;
 using NiceDentist.Manager.Application.Contracts;
 using NiceDentist.Manager.Application.DTOs;
+using NiceDentist.Manager.Domain;
 
 namespace NiceDentist.Manager.Api.Controllers;
 
@@ -112,12 +113,14 @@ public class CustomersController : ControllerBase
             {
                 Name = request.Name,
                 Email = request.Email,
-                Phone = request.Phone,
-                DateOfBirth = request.DateOfBirth,
-                Address = request.Address
+                Phone = request.Phone ?? string.Empty,
+                DateOfBirth = request.DateOfBirth ?? default,
+                Address = request.Address ?? string.Empty,
+                IsActive = true
             };
 
             var createdCustomer = await _customerService.CreateCustomerAsync(customerDto);
+
             var response = MapToResponse(createdCustomer);
 
             return CreatedAtAction(nameof(GetCustomerById), new { id = response.Id }, response);

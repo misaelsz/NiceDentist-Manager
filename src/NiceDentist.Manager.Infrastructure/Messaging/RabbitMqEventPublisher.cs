@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using NiceDentist.Manager.Application.Contracts;
+using NiceDentist.Manager.Application.Events;
 using RabbitMQ.Client;
 
 namespace NiceDentist.Manager.Infrastructure.Messaging;
@@ -99,6 +100,17 @@ public class RabbitMqEventPublisher : IEventPublisher, IDisposable
             properties.ContentType = "application/json";
             properties.MessageId = Guid.NewGuid().ToString();
             properties.Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            
+            // Set the event type for the consumer to identify
+            if (eventObject is CustomerCreatedEvent customerEvent)
+            {
+                properties.Type = customerEvent.EventType;
+            }
+            else
+            {
+                // Fallback to extract event type from the object type name
+                properties.Type = eventObject.GetType().Name;
+            }
             
             _channel.BasicPublish(
                 exchange: _exchangeName,

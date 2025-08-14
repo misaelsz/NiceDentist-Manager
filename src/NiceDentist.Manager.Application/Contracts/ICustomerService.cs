@@ -1,4 +1,5 @@
 using NiceDentist.Manager.Application.DTOs;
+using NiceDentist.Manager.Domain;
 
 namespace NiceDentist.Manager.Application.Contracts;
 
@@ -29,6 +30,13 @@ public interface ICustomerService
     /// <param name="customerDto">The customer data</param>
     /// <returns>The created customer</returns>
     Task<CustomerDto> CreateCustomerAsync(CustomerDto customerDto);
+
+    /// <summary>
+    /// Creates a new customer with associated user account and sends welcome email
+    /// </summary>
+    /// <param name="customer">The customer entity to create</param>
+    /// <returns>Result with success status, message, and created customer</returns>
+    Task<(bool Success, string Message, Customer? Customer)> CreateCustomerWithAuthAsync(Customer customer);
 
     /// <summary>
     /// Updates an existing customer
