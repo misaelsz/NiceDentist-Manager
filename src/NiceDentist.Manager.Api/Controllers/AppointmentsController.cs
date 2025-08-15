@@ -3,6 +3,7 @@ using NiceDentist.Manager.Api.DTOs.Requests;
 using NiceDentist.Manager.Api.DTOs.Responses;
 using NiceDentist.Manager.Application.Contracts;
 using NiceDentist.Manager.Domain;
+using NiceDentist.Manager.Domain.Extensions;
 
 namespace NiceDentist.Manager.Api.Controllers;
 
@@ -391,7 +392,7 @@ public class AppointmentsController : ControllerBase
             AppointmentDateTime = appointment.AppointmentDateTime,
             ProcedureType = appointment.ProcedureType,
             Notes = appointment.Notes,
-            Status = appointment.Status,
+            Status = appointment.Status.GetDescription(),
             CreatedAt = appointment.CreatedAt,
             UpdatedAt = appointment.UpdatedAt
         };

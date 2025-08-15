@@ -48,9 +48,9 @@ public class AppointmentResponse
     public string Notes { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the appointment status
+    /// Gets or sets the appointment status as text
     /// </summary>
-    public AppointmentStatus Status { get; set; }
+    public string Status { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets when the appointment was created

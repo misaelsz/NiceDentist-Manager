@@ -40,7 +40,7 @@ public class AppointmentRepository : IAppointmentRepository
         command.Parameters.AddWithValue("@AppointmentDateTime", appointment.AppointmentDateTime);
         command.Parameters.AddWithValue("@ProcedureType", appointment.ProcedureType);
         command.Parameters.AddWithValue("@Notes", appointment.Notes ?? (object)DBNull.Value);
-        command.Parameters.AddWithValue("@Status", appointment.Status.ToString());
+        command.Parameters.AddWithValue("@Status", (int)appointment.Status);
         command.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
         command.Parameters.AddWithValue("@UpdatedAt", DateTime.UtcNow);
 
@@ -252,7 +252,7 @@ public class AppointmentRepository : IAppointmentRepository
         command.Parameters.AddWithValue("@AppointmentDateTime", appointment.AppointmentDateTime);
         command.Parameters.AddWithValue("@ProcedureType", appointment.ProcedureType);
         command.Parameters.AddWithValue("@Notes", appointment.Notes ?? (object)DBNull.Value);
-        command.Parameters.AddWithValue("@Status", appointment.Status.ToString());
+        command.Parameters.AddWithValue("@Status", (int)appointment.Status);
         command.Parameters.AddWithValue("@UpdatedAt", DateTime.UtcNow);
 
         var rowsAffected = await command.ExecuteNonQueryAsync();
@@ -397,7 +397,7 @@ public class AppointmentRepository : IAppointmentRepository
             AppointmentDateTime = reader.GetDateTime("AppointmentDateTime"),
             ProcedureType = reader.GetString("ProcedureType"),
             Notes = reader.IsDBNull("Notes") ? string.Empty : reader.GetString("Notes"),
-            Status = Enum.Parse<AppointmentStatus>(reader.GetString("Status")),
+            Status = (AppointmentStatus)reader.GetInt32("Status"),
             CreatedAt = reader.GetDateTime("CreatedAt"),
             UpdatedAt = reader.GetDateTime("UpdatedAt")
         };
