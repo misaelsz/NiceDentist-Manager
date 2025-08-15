@@ -105,11 +105,18 @@ public class RabbitMqEventPublisher : IEventPublisher, IDisposable
             if (eventObject is CustomerCreatedEvent customerEvent)
             {
                 properties.Type = customerEvent.EventType;
+                Console.WriteLine($"Publishing CustomerCreatedEvent with type: {customerEvent.EventType}");
+            }
+            else if (eventObject is DentistCreatedEvent dentistEvent)
+            {
+                properties.Type = dentistEvent.EventType;
+                Console.WriteLine($"Publishing DentistCreatedEvent with type: {dentistEvent.EventType}");
             }
             else
             {
                 // Fallback to extract event type from the object type name
                 properties.Type = eventObject.GetType().Name;
+                Console.WriteLine($"Publishing unknown event with type: {eventObject.GetType().Name}");
             }
             
             _channel.BasicPublish(

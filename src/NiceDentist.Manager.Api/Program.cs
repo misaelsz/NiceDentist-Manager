@@ -39,6 +39,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Register application services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IDentistService, DentistService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 // Register repositories - Use SQL implementations by default

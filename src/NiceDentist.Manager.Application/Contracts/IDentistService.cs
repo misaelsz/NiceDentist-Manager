@@ -28,6 +28,11 @@ public interface IDentistService
     Task<DentistDto> CreateDentistAsync(DentistDto dentistDto);
 
     /// <summary>
+    /// Creates a new dentist with Auth API integration (publishes event)
+    /// </summary>
+    Task<DentistDto> CreateDentistWithAuthAsync(DentistDto dentistDto);
+
+    /// <summary>
     /// Updates an existing dentist
     /// </summary>
     Task<DentistDto> UpdateDentistAsync(int id, DentistDto dentistDto);

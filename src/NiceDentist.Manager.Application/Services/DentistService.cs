@@ -1,5 +1,6 @@
 using NiceDentist.Manager.Application.Contracts;
 using NiceDentist.Manager.Application.DTOs;
+using NiceDentist.Manager.Application.Events;
 using NiceDentist.Manager.Domain;
 
 namespace NiceDentist.Manager.Application.Services;
@@ -10,10 +11,12 @@ namespace NiceDentist.Manager.Application.Services;
 public class DentistService : IDentistService
 {
     private readonly IDentistRepository _dentistRepository;
+    private readonly IEventPublisher _eventPublisher;
 
-    public DentistService(IDentistRepository dentistRepository)
+    public DentistService(IDentistRepository dentistRepository, IEventPublisher eventPublisher)
     {
         _dentistRepository = dentistRepository ?? throw new ArgumentNullException(nameof(dentistRepository));
+        _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
     }
 
     /// <summary>
@@ -146,5 +149,45 @@ public class DentistService : IDentistService
             IsActive = dto.IsActive,
             UserId = dto.UserId
         };
+    }
+
+    /// <summary>
+    /// Creates a new dentist with Auth API integration (publishes event)
+    /// </summary>
+    /// <param name="dentistDto">The dentist data</param>
+    /// <returns>The created dentist</returns>
+    /// <exception cref="InvalidOperationException">Thrown when email already exists</exception>
+    public async Task<DentistDto> CreateDentistWithAuthAsync(DentistDto dentistDto)
+    {
+        // Check if email already exists
+        var existingDentist = await _dentistRepository.GetByEmailAsync(dentistDto.Email);
+        if (existingDentist != null)
+        {
+            throw new InvalidOperationException($"A dentist with email '{dentistDto.Email}' already exists.");
+        }
+
+        var dentist = MapToEntity(dentistDto);
+        dentist.CreatedAt = DateTime.UtcNow;
+        dentist.UpdatedAt = DateTime.UtcNow;
+        dentist.IsActive = true;
+
+        var createdDentist = await _dentistRepository.CreateAsync(dentist);
+
+        // Publish event to Auth API for user creation
+        var dentistCreatedEvent = new DentistCreatedEvent
+        {
+            Data = new DentistCreatedData
+            {
+                DentistId = createdDentist.Id,
+                Name = createdDentist.Name,
+                Email = createdDentist.Email,
+                LicenseNumber = createdDentist.LicenseNumber,
+                Specialization = createdDentist.Specialization
+            }
+        };
+
+        await _eventPublisher.PublishAsync(dentistCreatedEvent);
+
+        return MapToDto(createdDentist);
     }
 }

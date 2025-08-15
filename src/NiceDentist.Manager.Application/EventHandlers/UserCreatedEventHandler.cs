@@ -137,10 +137,16 @@ public class UserCreatedEventHandler : IEventHandler<UserCreatedEvent>
             }
         }
 
-        // Update dentist with UserId
-        dentist.UserId = userData.UserId;
-        await _dentistRepository.UpdateAsync(dentist);
+        // Update dentist with UserId using specific method
+        var updated = await _dentistRepository.UpdateUserIdAsync(dentist.Id, userData.UserId);
         
-        _logger.LogInformation("Updated Dentist {DentistId} with UserId {UserId}", dentist.Id, userData.UserId);
+        if (updated)
+        {
+            _logger.LogInformation("Successfully updated Dentist {DentistId} with UserId {UserId}", dentist.Id, userData.UserId);
+        }
+        else
+        {
+            _logger.LogWarning("Failed to update Dentist {DentistId} with UserId {UserId}", dentist.Id, userData.UserId);
+        }
     }
 }

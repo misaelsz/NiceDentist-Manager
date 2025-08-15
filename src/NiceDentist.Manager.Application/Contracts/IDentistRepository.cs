@@ -49,4 +49,12 @@ public interface IDentistRepository
     /// <param name="id">The dentist ID to delete</param>
     /// <returns>True if deleted, false otherwise</returns>
     Task<bool> DeleteAsync(int id);
+
+    /// <summary>
+    /// Updates only the UserId field for a dentist (used by events)
+    /// </summary>
+    /// <param name="dentistId">The dentist ID</param>
+    /// <param name="userId">The user ID to set</param>
+    /// <returns>True if updated successfully</returns>
+    Task<bool> UpdateUserIdAsync(int dentistId, int userId);
 }

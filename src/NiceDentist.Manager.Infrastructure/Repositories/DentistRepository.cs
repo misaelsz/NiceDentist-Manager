@@ -191,6 +191,32 @@ public class DentistRepository : IDentistRepository
     }
 
     /// <summary>
+    /// Updates only the UserId field for a dentist (used by events)
+    /// </summary>
+    /// <param name="dentistId">The dentist ID</param>
+    /// <param name="userId">The user ID to set</param>
+    /// <returns>True if updated successfully</returns>
+    public async Task<bool> UpdateUserIdAsync(int dentistId, int userId)
+    {
+        const string sql = @"
+            UPDATE Dentists 
+            SET UserId = @UserId,
+                UpdatedAt = @UpdatedAt
+            WHERE Id = @DentistId";
+
+        using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@DentistId", dentistId);
+        command.Parameters.AddWithValue("@UserId", userId);
+        command.Parameters.AddWithValue("@UpdatedAt", DateTime.UtcNow);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
+    }
+
+    /// <summary>
     /// Adds parameters to a SQL command for a dentist
     /// </summary>
     private static void AddParameters(SqlCommand command, Dentist dentist)

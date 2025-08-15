@@ -83,4 +83,23 @@ public class InMemoryDentistRepository : IDentistRepository
         _dentists.Remove(dentist);
         return Task.FromResult(true);
     }
+
+    /// <summary>
+    /// Updates only the UserId field for a dentist (used by events)
+    /// </summary>
+    /// <param name="dentistId">The dentist ID</param>
+    /// <param name="userId">The user ID to set</param>
+    /// <returns>True if updated successfully</returns>
+    public Task<bool> UpdateUserIdAsync(int dentistId, int userId)
+    {
+        var dentist = _dentists.FirstOrDefault(d => d.Id == dentistId);
+        if (dentist != null)
+        {
+            dentist.UserId = userId;
+            dentist.UpdatedAt = DateTime.UtcNow;
+            return Task.FromResult(true);
+        }
+        
+        return Task.FromResult(false);
+    }
 }
