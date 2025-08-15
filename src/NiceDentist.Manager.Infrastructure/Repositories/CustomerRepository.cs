@@ -165,7 +165,8 @@ public class CustomerRepository : ICustomerRepository
     {
         const string sql = @"
             UPDATE Customers 
-            SET Name = @Name,
+            SET UserId = @UserId,
+                Name = @Name,
                 Email = @Email,
                 Phone = @Phone,
                 DateOfBirth = @DateOfBirth,
@@ -179,6 +180,7 @@ public class CustomerRepository : ICustomerRepository
 
         using var command = new SqlCommand(sql, connection);
         command.Parameters.AddWithValue("@Id", customer.Id);
+        command.Parameters.AddWithValue("@UserId", customer.UserId.HasValue ? (object)customer.UserId.Value : DBNull.Value);
         command.Parameters.AddWithValue("@Name", customer.Name);
         command.Parameters.AddWithValue("@Email", customer.Email);
         command.Parameters.AddWithValue("@Phone", customer.Phone);
@@ -195,6 +197,32 @@ public class CustomerRepository : ICustomerRepository
 
         customer.UpdatedAt = DateTime.UtcNow;
         return customer;
+    }
+
+    /// <summary>
+    /// Updates only the UserId field for a customer (used by events)
+    /// </summary>
+    /// <param name="customerId">The customer ID</param>
+    /// <param name="userId">The user ID to set</param>
+    /// <returns>True if updated successfully</returns>
+    public async Task<bool> UpdateUserIdAsync(int customerId, int userId)
+    {
+        const string sql = @"
+            UPDATE Customers 
+            SET UserId = @UserId,
+                UpdatedAt = @UpdatedAt
+            WHERE Id = @CustomerId";
+
+        using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@CustomerId", customerId);
+        command.Parameters.AddWithValue("@UserId", userId);
+        command.Parameters.AddWithValue("@UpdatedAt", DateTime.UtcNow);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
     }
 
     /// <summary>

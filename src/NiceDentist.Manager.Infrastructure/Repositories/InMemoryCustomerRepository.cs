@@ -115,6 +115,25 @@ public class InMemoryCustomerRepository : ICustomerRepository
     }
 
     /// <summary>
+    /// Updates only the UserId field for a customer (used by events)
+    /// </summary>
+    /// <param name="customerId">The customer ID</param>
+    /// <param name="userId">The user ID to set</param>
+    /// <returns>True if updated successfully</returns>
+    public Task<bool> UpdateUserIdAsync(int customerId, int userId)
+    {
+        var customer = _customers.FirstOrDefault(c => c.Id == customerId);
+        if (customer != null)
+        {
+            customer.UserId = userId;
+            customer.UpdatedAt = DateTime.UtcNow;
+            return Task.FromResult(true);
+        }
+        
+        return Task.FromResult(false);
+    }
+
+    /// <summary>
     /// Deletes a customer
     /// </summary>
     /// <param name="id">The customer ID to delete</param>

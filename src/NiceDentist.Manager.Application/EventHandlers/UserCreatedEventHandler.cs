@@ -92,6 +92,25 @@ public class UserCreatedEventHandler : IEventHandler<UserCreatedEvent>
         await _customerRepository.UpdateAsync(customer);
         
         _logger.LogInformation("Updated Customer {CustomerId} with UserId {UserId}", customer.Id, userData.UserId);
+
+        if (customer != null)
+        {
+            // Usar método específico para atualizar apenas o UserId
+            var updated = await _customerRepository.UpdateUserIdAsync(customer.Id, userData.UserId);
+            
+            if (updated)
+            {
+                _logger.LogInformation($"Successfully updated customer {customer.Id} with UserId {userData.UserId}");
+            }
+            else
+            {
+                _logger.LogWarning($"Failed to update customer {customer.Id} with UserId {userData.UserId}");
+            }
+        }
+        else
+        {
+            _logger.LogWarning($"Customer not found for email: {userData.Email}");
+        }
     }
 
     /// <summary>

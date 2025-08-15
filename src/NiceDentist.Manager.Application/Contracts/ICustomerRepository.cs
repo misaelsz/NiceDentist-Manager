@@ -52,6 +52,14 @@ public interface ICustomerRepository
     Task<Customer> UpdateAsync(Customer customer);
 
     /// <summary>
+    /// Updates only the UserId field for a customer (used by events)
+    /// </summary>
+    /// <param name="customerId">The customer ID</param>
+    /// <param name="userId">The user ID to set</param>
+    /// <returns>True if updated successfully</returns>
+    Task<bool> UpdateUserIdAsync(int customerId, int userId);
+
+    /// <summary>
     /// Deletes a customer
     /// </summary>
     /// <param name="id">The customer ID to delete</param>
