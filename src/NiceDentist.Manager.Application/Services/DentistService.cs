@@ -20,12 +20,37 @@ public class DentistService : IDentistService
     }
 
     /// <summary>
-    /// Gets all dentists with pagination
+    /// Gets all dentists with pagination and search
     /// </summary>
-    public async Task<IEnumerable<DentistDto>> GetAllDentistsAsync(int page = 1, int pageSize = 10)
+    public async Task<PagedResult<DentistDto>> GetAllDentistsAsync(int page = 1, int pageSize = 10, string? search = null)
     {
-        var dentists = await _dentistRepository.GetAllAsync(page, pageSize);
-        return dentists.Select(MapToDto);
+        var allDentists = await _dentistRepository.GetAllAsync();
+        var filteredDentists = allDentists.AsQueryable();
+
+        // Apply search filter if provided
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            filteredDentists = filteredDentists.Where(d => 
+                d.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                d.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                d.LicenseNumber.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                d.Specialization.Contains(search, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var totalCount = filteredDentists.Count();
+        var items = filteredDentists
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(MapToDto)
+            .ToList();
+
+        return new PagedResult<DentistDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
     }
 
     /// <summary>

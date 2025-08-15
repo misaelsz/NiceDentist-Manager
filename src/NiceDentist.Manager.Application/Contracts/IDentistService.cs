@@ -8,9 +8,13 @@ namespace NiceDentist.Manager.Application.Contracts;
 public interface IDentistService
 {
     /// <summary>
-    /// Gets all dentists with pagination
+    /// Gets all dentists with pagination and search
     /// </summary>
-    Task<IEnumerable<DentistDto>> GetAllDentistsAsync(int page = 1, int pageSize = 10);
+    /// <param name="page">Page number (1-based)</param>
+    /// <param name="pageSize">Number of items per page</param>
+    /// <param name="search">Optional search term</param>
+    /// <returns>A paged result of dentists</returns>
+    Task<PagedResult<DentistDto>> GetAllDentistsAsync(int page = 1, int pageSize = 10, string? search = null);
 
     /// <summary>
     /// Gets a dentist by ID
