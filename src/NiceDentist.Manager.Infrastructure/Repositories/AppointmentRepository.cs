@@ -60,9 +60,14 @@ public class AppointmentRepository : IAppointmentRepository
     public async Task<Appointment?> GetByIdAsync(int id)
     {
         const string sql = @"
-            SELECT Id, CustomerId, DentistId, AppointmentDateTime, ProcedureType, Notes, Status, CreatedAt, UpdatedAt
-            FROM Appointments 
-            WHERE Id = @Id";
+            SELECT 
+                a.Id, a.CustomerId, a.DentistId, a.AppointmentDateTime, a.ProcedureType, a.Notes, a.Status, a.CreatedAt, a.UpdatedAt,
+                c.Name as CustomerName,
+                d.Name as DentistName
+            FROM Appointments a
+            LEFT JOIN Customers c ON a.CustomerId = c.Id
+            LEFT JOIN Dentists d ON a.DentistId = d.Id
+            WHERE a.Id = @Id";
 
         using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();
@@ -87,10 +92,15 @@ public class AppointmentRepository : IAppointmentRepository
     public async Task<IEnumerable<Appointment>> GetByCustomerIdAsync(int customerId)
     {
         const string sql = @"
-            SELECT Id, CustomerId, DentistId, AppointmentDateTime, ProcedureType, Notes, Status, CreatedAt, UpdatedAt
-            FROM Appointments 
-            WHERE CustomerId = @CustomerId
-            ORDER BY AppointmentDateTime";
+            SELECT 
+                a.Id, a.CustomerId, a.DentistId, a.AppointmentDateTime, a.ProcedureType, a.Notes, a.Status, a.CreatedAt, a.UpdatedAt,
+                c.Name as CustomerName,
+                d.Name as DentistName
+            FROM Appointments a
+            LEFT JOIN Customers c ON a.CustomerId = c.Id
+            LEFT JOIN Dentists d ON a.DentistId = d.Id
+            WHERE a.CustomerId = @CustomerId
+            ORDER BY a.AppointmentDateTime";
 
         return await ExecuteQueryAsync(sql, new { CustomerId = customerId });
     }
@@ -103,10 +113,15 @@ public class AppointmentRepository : IAppointmentRepository
     public async Task<IEnumerable<Appointment>> GetByDentistIdAsync(int dentistId)
     {
         const string sql = @"
-            SELECT Id, CustomerId, DentistId, AppointmentDateTime, ProcedureType, Notes, Status, CreatedAt, UpdatedAt
-            FROM Appointments 
-            WHERE DentistId = @DentistId
-            ORDER BY AppointmentDateTime";
+            SELECT 
+                a.Id, a.CustomerId, a.DentistId, a.AppointmentDateTime, a.ProcedureType, a.Notes, a.Status, a.CreatedAt, a.UpdatedAt,
+                c.Name as CustomerName,
+                d.Name as DentistName
+            FROM Appointments a
+            LEFT JOIN Customers c ON a.CustomerId = c.Id
+            LEFT JOIN Dentists d ON a.DentistId = d.Id
+            WHERE a.DentistId = @DentistId
+            ORDER BY a.AppointmentDateTime";
 
         return await ExecuteQueryAsync(sql, new { DentistId = dentistId });
     }
@@ -120,10 +135,15 @@ public class AppointmentRepository : IAppointmentRepository
     public async Task<IEnumerable<Appointment>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
     {
         const string sql = @"
-            SELECT Id, CustomerId, DentistId, AppointmentDateTime, ProcedureType, Notes, Status, CreatedAt, UpdatedAt
-            FROM Appointments 
-            WHERE AppointmentDateTime >= @StartDate AND AppointmentDateTime <= @EndDate
-            ORDER BY AppointmentDateTime";
+            SELECT 
+                a.Id, a.CustomerId, a.DentistId, a.AppointmentDateTime, a.ProcedureType, a.Notes, a.Status, a.CreatedAt, a.UpdatedAt,
+                c.Name as CustomerName,
+                d.Name as DentistName
+            FROM Appointments a
+            LEFT JOIN Customers c ON a.CustomerId = c.Id
+            LEFT JOIN Dentists d ON a.DentistId = d.Id
+            WHERE a.AppointmentDateTime >= @StartDate AND a.AppointmentDateTime <= @EndDate
+            ORDER BY a.AppointmentDateTime";
 
         return await ExecuteQueryAsync(sql, new { StartDate = startDate, EndDate = endDate });
     }
@@ -277,8 +297,13 @@ public class AppointmentRepository : IAppointmentRepository
         AppointmentStatus? status = null)
     {
         var sql = @"
-            SELECT Id, CustomerId, DentistId, AppointmentDateTime, ProcedureType, Notes, Status, CreatedAt, UpdatedAt
-            FROM Appointments 
+            SELECT 
+                a.Id, a.CustomerId, a.DentistId, a.AppointmentDateTime, a.ProcedureType, a.Notes, a.Status, a.CreatedAt, a.UpdatedAt,
+                c.Name as CustomerName,
+                d.Name as DentistName
+            FROM Appointments a
+            LEFT JOIN Customers c ON a.CustomerId = c.Id
+            LEFT JOIN Dentists d ON a.DentistId = d.Id
             WHERE 1=1";
 
         var parameters = new List<SqlParameter>();
@@ -364,7 +389,7 @@ public class AppointmentRepository : IAppointmentRepository
 
     private static Appointment MapFromReader(SqlDataReader reader)
     {
-        return new Appointment
+        var appointment = new Appointment
         {
             Id = reader.GetInt32("Id"),
             CustomerId = reader.GetInt32("CustomerId"),
@@ -376,5 +401,20 @@ public class AppointmentRepository : IAppointmentRepository
             CreatedAt = reader.GetDateTime("CreatedAt"),
             UpdatedAt = reader.GetDateTime("UpdatedAt")
         };
+
+        // Set navigation properties with names from JOIN
+        appointment.Customer = new Customer 
+        { 
+            Id = appointment.CustomerId,
+            Name = reader.IsDBNull("CustomerName") ? "Unknown" : reader.GetString("CustomerName")
+        };
+        
+        appointment.Dentist = new Dentist 
+        { 
+            Id = appointment.DentistId,
+            Name = reader.IsDBNull("DentistName") ? "Unknown" : reader.GetString("DentistName")
+        };
+
+        return appointment;
     }
 }
