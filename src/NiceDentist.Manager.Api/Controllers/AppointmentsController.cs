@@ -353,6 +353,64 @@ public class AppointmentsController : ControllerBase
     }
 
     /// <summary>
+    /// Cancels an appointment
+    /// </summary>
+    /// <param name="id">Appointment ID</param>
+    /// <param name="request">Cancellation request with optional reason</param>
+    /// <returns>Updated appointment</returns>
+    [HttpPut("{id}/cancel")]
+    [ProducesResponseType(typeof(AppointmentResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AppointmentResponse>> CancelAppointment(int id, [FromBody] CancelAppointmentRequest? request = null)
+    {
+        try
+        {
+            var updatedAppointment = await _appointmentService.UpdateAppointmentStatusAsync(id, AppointmentStatus.Cancelled, request?.Reason);
+            if (updatedAppointment == null)
+            {
+                return NotFound($"Appointment with ID {id} not found");
+            }
+
+            return Ok(MapToResponse(updatedAppointment));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while cancelling appointment {AppointmentId}", id);
+            return StatusCode(500, GenericErrorMessage);
+        }
+    }
+
+    /// <summary>
+    /// Completes an appointment
+    /// </summary>
+    /// <param name="id">Appointment ID</param>
+    /// <param name="request">Completion request with optional notes</param>
+    /// <returns>Updated appointment</returns>
+    [HttpPut("{id}/complete")]
+    [ProducesResponseType(typeof(AppointmentResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<AppointmentResponse>> CompleteAppointment(int id, [FromBody] CompleteAppointmentRequest? request = null)
+    {
+        try
+        {
+            var updatedAppointment = await _appointmentService.UpdateAppointmentStatusAsync(id, AppointmentStatus.Completed, request?.Notes);
+            if (updatedAppointment == null)
+            {
+                return NotFound($"Appointment with ID {id} not found");
+            }
+
+            return Ok(MapToResponse(updatedAppointment));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while completing appointment {AppointmentId}", id);
+            return StatusCode(500, GenericErrorMessage);
+        }
+    }
+
+    /// <summary>
     /// Deletes an appointment
     /// </summary>
     /// <param name="id">Appointment ID</param>
