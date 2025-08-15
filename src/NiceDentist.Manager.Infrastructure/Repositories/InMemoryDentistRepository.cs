@@ -40,6 +40,15 @@ public class InMemoryDentistRepository : IDentistRepository
     }
 
     /// <summary>
+    /// Gets a dentist by license number
+    /// </summary>
+    public Task<Dentist?> GetByLicenseNumberAsync(string licenseNumber)
+    {
+        var dentist = _dentists.FirstOrDefault(d => d.LicenseNumber.Equals(licenseNumber, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(dentist);
+    }
+
+    /// <summary>
     /// Creates a new dentist
     /// </summary>
     public Task<Dentist> CreateAsync(Dentist dentist)

@@ -93,6 +93,32 @@ public class DentistRepository : IDentistRepository
     }
 
     /// <summary>
+    /// Gets a dentist by license number
+    /// </summary>
+    public async Task<Dentist?> GetByLicenseNumberAsync(string licenseNumber)
+    {
+        const string sql = @"
+            SELECT Id, Name, Email, Phone, LicenseNumber, Specialization, CreatedAt, UpdatedAt, IsActive, UserId
+            FROM Dentists 
+            WHERE LicenseNumber = @LicenseNumber";
+
+        using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        using var command = new SqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@LicenseNumber", licenseNumber);
+
+        using var reader = await command.ExecuteReaderAsync();
+        
+        if (await reader.ReadAsync())
+        {
+            return MapFromReader(reader);
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Gets all dentists with pagination
     /// </summary>
     public async Task<IEnumerable<Dentist>> GetAllAsync(int page = 1, int pageSize = 10)

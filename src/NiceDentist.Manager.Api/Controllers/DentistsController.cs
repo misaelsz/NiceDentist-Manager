@@ -142,11 +142,24 @@ public class DentistsController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
         {
-            _logger.LogWarning(ex, "Duplicate dentist email: {Email}", dentistDto.Email);
+            string field = "email";
+            string code = "DUPLICATE_EMAIL";
+            
+            if (ex.Message.Contains("license number"))
+            {
+                field = "licenseNumber";
+                code = "DUPLICATE_LICENSE";
+                _logger.LogWarning(ex, "Duplicate dentist license number: {LicenseNumber}", dentistDto.LicenseNumber);
+            }
+            else
+            {
+                _logger.LogWarning(ex, "Duplicate dentist email: {Email}", dentistDto.Email);
+            }
+            
             return Conflict(new { 
                 message = ex.Message,
-                field = "email",
-                code = "DUPLICATE_EMAIL"
+                field = field,
+                code = code
             });
         }
         catch (ArgumentException ex)
@@ -188,10 +201,28 @@ public class DentistsController : ControllerBase
             _logger.LogWarning(ex, "Invalid dentist data provided for dentist {DentistId}", id);
             return BadRequest(ex.Message);
         }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+        {
+            string field = "email";
+            string code = "DUPLICATE_EMAIL";
+            
+            if (ex.Message.Contains("license number"))
+            {
+                field = "licenseNumber";
+                code = "DUPLICATE_LICENSE";
+            }
+            
+            _logger.LogWarning(ex, "Conflict while updating dentist {DentistId}: duplicate {Field}", id, field);
+            return Conflict(new { 
+                message = ex.Message,
+                field = field,
+                code = code
+            });
+        }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Conflict while updating dentist {DentistId}", id);
-            return Conflict(ex.Message);
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {

@@ -29,6 +29,13 @@ public interface IDentistRepository
     Task<Dentist?> GetByEmailAsync(string email);
 
     /// <summary>
+    /// Gets a dentist by license number
+    /// </summary>
+    /// <param name="licenseNumber">The dentist license number</param>
+    /// <returns>The dentist if found, null otherwise</returns>
+    Task<Dentist?> GetByLicenseNumberAsync(string licenseNumber);
+
+    /// <summary>
     /// Gets all dentists with pagination
     /// </summary>
     /// <param name="page">Page number (1-based)</param>

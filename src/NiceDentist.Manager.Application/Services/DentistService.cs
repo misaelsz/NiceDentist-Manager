@@ -74,7 +74,7 @@ public class DentistService : IDentistService
     /// <summary>
     /// Creates a new dentist
     /// </summary>
-    /// <exception cref="InvalidOperationException">Thrown when email already exists</exception>
+    /// <exception cref="InvalidOperationException">Thrown when email or license number already exists</exception>
     public async Task<DentistDto> CreateDentistAsync(DentistDto dentistDto)
     {
         // Check if email already exists
@@ -82,6 +82,13 @@ public class DentistService : IDentistService
         if (existingDentist != null)
         {
             throw new InvalidOperationException($"A dentist with email '{dentistDto.Email}' already exists.");
+        }
+
+        // Check if license number already exists
+        var existingLicense = await _dentistRepository.GetByLicenseNumberAsync(dentistDto.LicenseNumber);
+        if (existingLicense != null)
+        {
+            throw new InvalidOperationException($"A dentist with license number '{dentistDto.LicenseNumber}' already exists.");
         }
 
         var dentist = MapToEntity(dentistDto);
@@ -96,7 +103,7 @@ public class DentistService : IDentistService
     /// <summary>
     /// Updates an existing dentist
     /// </summary>
-    /// <exception cref="InvalidOperationException">Thrown when dentist not found or email already exists</exception>
+    /// <exception cref="InvalidOperationException">Thrown when dentist not found or email/license number already exists</exception>
     public async Task<DentistDto> UpdateDentistAsync(int id, DentistDto dentistDto)
     {
         var existingDentist = await _dentistRepository.GetByIdAsync(id);
@@ -112,6 +119,16 @@ public class DentistService : IDentistService
             if (dentistWithSameEmail != null)
             {
                 throw new InvalidOperationException($"A dentist with email '{dentistDto.Email}' already exists.");
+            }
+        }
+
+        // Check if license number is being changed and if it already exists
+        if (existingDentist.LicenseNumber != dentistDto.LicenseNumber)
+        {
+            var dentistWithSameLicense = await _dentistRepository.GetByLicenseNumberAsync(dentistDto.LicenseNumber);
+            if (dentistWithSameLicense != null)
+            {
+                throw new InvalidOperationException($"A dentist with license number '{dentistDto.LicenseNumber}' already exists.");
             }
         }
 
@@ -181,7 +198,7 @@ public class DentistService : IDentistService
     /// </summary>
     /// <param name="dentistDto">The dentist data</param>
     /// <returns>The created dentist</returns>
-    /// <exception cref="InvalidOperationException">Thrown when email already exists</exception>
+    /// <exception cref="InvalidOperationException">Thrown when email or license number already exists</exception>
     public async Task<DentistDto> CreateDentistWithAuthAsync(DentistDto dentistDto)
     {
         // Check if email already exists
@@ -189,6 +206,13 @@ public class DentistService : IDentistService
         if (existingDentist != null)
         {
             throw new InvalidOperationException($"A dentist with email '{dentistDto.Email}' already exists.");
+        }
+
+        // Check if license number already exists
+        var existingLicense = await _dentistRepository.GetByLicenseNumberAsync(dentistDto.LicenseNumber);
+        if (existingLicense != null)
+        {
+            throw new InvalidOperationException($"A dentist with license number '{dentistDto.LicenseNumber}' already exists.");
         }
 
         var dentist = MapToEntity(dentistDto);
